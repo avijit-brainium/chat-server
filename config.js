@@ -7,7 +7,7 @@
 var config = {
     port: process.env.PORT || 3000,
     database : 'mongodb://localhost:27017/avchat',
-    secret: 'awsdfaaCSCDQ$421edascDAFDRWQ43214546asfA~@*34254DFASa'
+    secret: 'awsdfaaCSC45DQ$421edascDAFDRWQ43214546asfA~@*34254DFASa'
 };
 module.exports = config;
 

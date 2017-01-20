@@ -1,5 +1,29 @@
 var async = require('async');
-var UserModel = require('../models/UserModel')
+var UserModel = require('../models/UserModel');
+var jwt = require('jsonwebtoken');
+
+var config = require('../config');
+
+
+var secretKey = config.secret;
+
+function createToken(user){
+    
+    var tokenData = {
+        id: user._id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email
+    };
+
+    var token = jwt.sign(tokenData, secretKey, {
+        expiresIn: '4h'
+    });
+
+    return token;
+    
+}
+
 var UserMethods = {
     
     registerUser: function(userData, callback){
@@ -67,8 +91,8 @@ var UserMethods = {
             callback({success: false, message: "provide password", message_id: "enter_password"});
         }
         else{
-            UserModel.findOne({username: userdata.email})
-                .select('username password first_name last_name').exec(function(err, user){
+            UserModel.findOne({email: userdata.email})
+                .select('username is_active password first_name last_name').exec(function(err, user){
                     if(err){
                         throw err;
                     }
@@ -80,10 +104,7 @@ var UserMethods = {
                             callback({success: false, message: "invalid password"});
                         }
                         else if(!user.is_active){
-                            callback({success: false, message: "account not activated"});
-                        }
-                        else if(!user.phone_verified){
-                            callback({success: false, message: "phone number not verified", message_id: "msg_phn_verified"});
+                            callback({success: false, message: "account not active"});
                         }
                         else{
                             
@@ -112,10 +133,9 @@ var UserMethods = {
                                 user.last_login = fields.last_login;
                             });
                             //console.log(typeof user.available_credit);
-                            
-                            var token = createToken(user);
                             //console.log(user);
-                            callback({success: true, message: "successfully logged in", message_id: "login_success", token: token});                            
+                            var token = createToken(user);
+                            callback({success: true, message: "successfully logged in", token: token});                            
                         }
                     }
                 });
